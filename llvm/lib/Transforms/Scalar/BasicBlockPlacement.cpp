@@ -36,6 +36,9 @@
 #include <set>
 using namespace llvm;
 
+#include <iostream>
+using namespace std;
+
 STATISTIC(NumMoved, "Number of basic blocks moved");
 
 namespace {
@@ -85,7 +88,10 @@ INITIALIZE_PASS_END(BlockPlacement, "block-placement",
 FunctionPass *llvm::createBlockPlacementPass() { return new BlockPlacement(); }
 
 bool BlockPlacement::runOnFunction(Function &F) {
+
+  cout << "ENTER RUN ON FUNCTION" << endl;
   PI = &getAnalysis<ProfileInfo>();
+  cout << PI << endl;
 
   NumMovedBlocks = 0;
   InsertPos = F.begin();
@@ -95,6 +101,9 @@ bool BlockPlacement::runOnFunction(Function &F) {
 
   PlacedBlocks.clear();
   NumMoved += NumMovedBlocks;
+
+  cout << "Blocks placed: " << NumMoved << endl;
+
   return NumMovedBlocks != 0;
 }
 
@@ -124,12 +133,14 @@ void BlockPlacement::PlaceBlocks(BasicBlock *BB) {
   // statements.  FIXME!
   while (1) {
     // Okay, now place any unplaced successors.
-    succ_iterator SI = succ_begin(BB), E = succ_end(BB);
+    succ_iterator SI = succ_begin(BB); // reference to first successor of our block
+    succ_iterator E = succ_end(BB); // refernce to last success of our block
 
-    // Scan for the first unplaced successor.
-    for (; SI != E && PlacedBlocks.count(*SI); ++SI)
-      /*empty*/;
-    if (SI == E) return;  // No more successors to place.
+    // PlacedBlocks.count(*SI) returns the number of items the successor block at point SI is in the set of PlacedBlocks - this loop keeps going until we reach the end of all successors or the block has not been placed.
+    for (; SI != E && PlacedBlocks.count(*SI); ++SI) { /* empty */ }
+
+    // We traverse the list of successors and have no more to place. We're done.
+    if (SI == E) return; // end recursion
 
     double MaxExecutionCount = PI->getExecutionCount(*SI);
     BasicBlock *MaxSuccessor = *SI;
@@ -150,3 +161,21 @@ void BlockPlacement::PlaceBlocks(BasicBlock *BB) {
     PlaceBlocks(MaxSuccessor);
   }
 }
+
+/// PlaceBlocks - Recursively place the specified blocks and any unplaced
+/// successors.
+
+// algo2 from http://pages.cs.wisc.edu/~fischer/cs701.f06/code.positioning.pdf
+// supposedly, this performs better than algo1 (top-down, which is already implemented...)
+
+/*
+void BlockPlacement::PlaceBlocksBottomUp(BasicBlock *BB) {
+  assert(!PlacedBlocks.count(BB) && "Already placed this block!");
+  PlacedBlocks.insert(BB);
+
+    // initially, consider each basic block the head/tail of a chain itself
+    // chain can be represented using Function::BasicBlockListType - BB->getBasicBlockList() (returns all basic blocks of the function that this block belongs to - need to strip out all those that are not me)
+    // see notes for the pseudocode...
+
+}
+*/
