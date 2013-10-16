@@ -34,6 +34,9 @@
 #include "llvm/Pass.h"
 #include "llvm/Support/CFG.h"
 #include <set>
+#include <vector>
+#include <queue>
+#include <tuple>
 using namespace llvm;
 
 #include <iostream>
@@ -75,6 +78,9 @@ namespace {
     /// PlaceBlocks - Recursively place the specified blocks and any unplaced
     /// successors.
     void PlaceBlocks(BasicBlock *BB);
+
+    /// PlaceBlocksBottomUp - algo 2 for doing basic block placement
+    void PlaceBlocksBottomUp(vector<vector<BasicBlock*>> chains, vector<vector<BasicBlock*>> chains, vector<tuple<BasicBlock*, BasicBlock*, double>> arcs);
   };
 }
 
@@ -95,6 +101,59 @@ bool BlockPlacement::runOnFunction(Function &F) {
 
   NumMovedBlocks = 0;
   InsertPos = F.begin();
+
+  // Put all basic blocks for this function in a chain by itself
+  vector<vector<BasicBlock*>> chains;
+  for (Function::iterator itr = F.begin(); itr != F.end(); itr++)
+  {
+    vector<BasicBlock*> singleton;
+    singleton.push_back(*itr);
+    chains.push_back(singleton);
+  }
+
+  // Put arcs of the function basic blocks in order from largest to smallest
+  vector<tuple<BasicBlock*, BasicBlock*, double>> arcs; 
+  Function::iterator start = F.begin();
+
+  // DSF CFG to fill in arc edges and weights from the profile data
+  queue<const BasicBlock*> bfsQueue;
+  bfsQueue.push(start);
+  while (bfsQueue.empty() == false)
+  {
+    BasicBlock* curr = bfsQueue.pop();
+    for (BasicBlock::iterator itr = curr.succ_begin(); itr != curr.succ_end(); itr++)
+    {
+      // Determine arc weight using profile information
+      Edge e = PI.getEdge(curr, *itr);
+      double weight = PI.getEdgeWeight(e);
+
+      // Insert into the right spot
+      bool inserted = false;
+      for (vector<tuple<BasicBlock*, BasicBlock*, int>>::iterator arcItr = arcs.begin(); arcItr != arcs.end(); arcItr++)
+      {
+        tuple<BasicBlock*, BasicBlock*, double> currTuple = (*arcItr);
+        double wt = currTuple.get<2>(currTuple); 
+        if (weight < wt) continue; // try next spot
+        else
+        {
+          arcs.insert(arcItr, make_tuple(curr, *itr, weight));
+          insert = true;
+          break;
+        }
+      }
+
+      // Add to the end of the vector
+      if (insert == false) 
+      {
+        arcs.push_back(make_tuple(curr, *itr, weight));
+      }
+
+      // Append the new basic block to the queue to continue traversal
+      bfsQueue.push(*itr);
+    }
+  }
+  
+  // TODO
 
   // Recursively place all blocks.
   PlaceBlocks(F.begin());
@@ -168,14 +227,9 @@ void BlockPlacement::PlaceBlocks(BasicBlock *BB) {
 // algo2 from http://pages.cs.wisc.edu/~fischer/cs701.f06/code.positioning.pdf
 // supposedly, this performs better than algo1 (top-down, which is already implemented...)
 
-/*
-void BlockPlacement::PlaceBlocksBottomUp(BasicBlock *BB) {
-  assert(!PlacedBlocks.count(BB) && "Already placed this block!");
-  PlacedBlocks.insert(BB);
 
-    // initially, consider each basic block the head/tail of a chain itself
-    // chain can be represented using Function::BasicBlockListType - BB->getBasicBlockList() (returns all basic blocks of the function that this block belongs to - need to strip out all those that are not me)
-    // see notes for the pseudocode...
+void BlockPlacement::PlaceBlocksBottomUp(vector<vector<BasicBlock*>> chains, vector<vector<BasicBlock*>> chains, vector<tuple<BasicBlock*, BasicBlock*, double>> arcs) {
+  cout << "Inside BlockPlacement::PlaceBlocksBottomUp" << endl;
 
+  // TODO
 }
-*/
