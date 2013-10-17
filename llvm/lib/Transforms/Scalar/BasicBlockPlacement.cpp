@@ -123,10 +123,15 @@ bool BlockPlacement::runOnFunction(Function &F) {
   // DSF CFG to fill in arc edges and weights from the profile data
   queue<const BasicBlock*> bfsQueue;
   bfsQueue.push(start);
+  set<const BasicBlock*> visited;
   while (bfsQueue.empty() == false)
   {
     const BasicBlock* curr = bfsQueue.front();
     bfsQueue.pop();
+    visited.insert(curr);
+
+    // debug
+    cout << "Visited block @" << curr << endl;
     for (llvm::succ_const_iterator itr = succ_begin(curr); itr != succ_end(curr); itr++)
     {
       // Determine arc weight using profile information
@@ -165,20 +170,27 @@ bool BlockPlacement::runOnFunction(Function &F) {
         // arcs.push_back(make_tuple(curr, *itr, weight));
       }
 
-      // Append the new basic block to the queue to continue traversal
-      bfsQueue.push(*itr);
+      // Append the new basic block to the queue to continue traversal (if we haven't visited it before...)
+      if (visited.find(*itr) == visited.end()) // not in the set of visited blocks
+      {
+        bfsQueue.push(*itr);
+      }
+      else
+      {
+        cout << "Skipping block @" << *itr << endl;
+      }
     }
   }
   
   // Merge chains together using arc information
   for (vector<BBArc>::iterator arcItr = arcs.begin(); arcItr != arcs.end(); arcItr++)
   {
-    BBArc arc = *itr;
+    BBArc arc = *arcItr;
 
     // Walk each pair of head/tails and check to see if they satisfy this arc
-    for (int i = 0; i < chains.size(); i++)
+    for (unsigned int i = 0; i < chains.size(); i++)
     {
-      for (int j = 0; j < chains.size(); j++)
+      for (unsigned int j = 0; j < chains.size(); j++)
       {
         if (i != j)
         {
