@@ -189,6 +189,7 @@ bool BlockPlacement::runOnFunction(Function &F) {
   {
     BBArc arc = *arcItr;
     cout << "Visiting arc @" << &arc << endl;
+    cout << "Weight = " << arc.weight << endl;
 
     // Walk each pair of head/tails and check to see if they satisfy this arc
     for (unsigned int i = 0; i < chains.size(); i++)
@@ -231,13 +232,32 @@ bool BlockPlacement::runOnFunction(Function &F) {
   }
 
   // precedence rule: "the chain containing the source is given precedence over the chain containing the target."
-  // Do the final placement...
+  // Start with entry chain
+  // use functions moveBefore and moveAfter to place basicblocks in a line...
+  // BasicBlock::moveAfter(BasicBlock* movePos):  Unlink this basic block from its current function and insert it right after MovePos in the function MovePos lives in. 
+  BasicBlock& entry = F.getEntryBlock();
+  BasicBlock* curr = &entry; // this won't work, but the idea is there
+  for (int i = 0; i < chains.size(); i++) 
+  {
+    if (chains[i].size() > 0)
+    {
+      cout << "Comparing " << chains[i][0] << " and " << curr << endl;
+      if (chains[i][0] == curr) // append all basic blocks in this chain to the "current" block
+      {
+        for (int j = 0; j < chains[i].size(); j++)
+        {
+          chains[i][j]->moveAfter(curr);
+          curr = chains[i][j];
+          NumMovedBlocks++;
+        }
+      }
+    }
+  }
 
   // Recursively place all blocks.
-  PlaceBlocks(F.begin());
-
-  PlacedBlocks.clear();
-  NumMoved += NumMovedBlocks;
+  //PlaceBlocks(F.begin());
+  //PlacedBlocks.clear();
+  //NumMoved += NumMovedBlocks;
 
   cout << "Blocks placed: " << NumMoved << endl;
 
