@@ -118,8 +118,8 @@ bool BlockPlacement::runOnFunction(Function &F) {
 
   // Put arcs of the function basic blocks in order from largest to smallest
   vector<BBArc> arcs; 
-  Function::iterator start = F.begin()
-;
+  Function::iterator start = F.begin();
+
   // DSF CFG to fill in arc edges and weights from the profile data
   queue<const BasicBlock*> bfsQueue;
   bfsQueue.push(start);
@@ -170,7 +170,44 @@ bool BlockPlacement::runOnFunction(Function &F) {
     }
   }
   
-  // TODO: finish joining the arcs into the chains
+  // Merge chains together using arc information
+  for (vector<BBArc>::iterator arcItr = arcs.begin(); arcItr != arcs.end(); arcItr++)
+  {
+    BBArc arc = *itr;
+
+    // Walk each pair of head/tails and check to see if they satisfy this arc
+    for (int i = 0; i < chains.size(); i++)
+    {
+      for (int j = 0; j < chains.size(); j++)
+      {
+        if (i != j)
+        {
+          // if arc connects the tail of one chain to the head of another
+          // append target/tail chain to source/head chain
+          // vectors store BB pointers, so we can just compare addresses for equality 
+          if (chains[i][0] == arc.tail && chains[j][chains[j].size() - 1] == arc.head) // chain j is the head, i is the tail
+          {
+            for (int k = 0; k < chains[i].size(); k++) // append chains[i] to chains[j]
+            {
+              chains[j].push_back(chains[i][0]);
+              chains[i].erase(chains[i].begin());
+            }
+          }
+          else if (chains[i][chains[i].size() - 1] == arc.head && chains[j][0] == arc.tail) // chain j is the tail, i is the head
+          {
+            for (int k = 0; k < chains[j].size(); k++) // append chains[j] to chains[i]
+            {
+              chains[i].push_back(chains[j][0]);
+              chains[j].erase(chains[j].begin());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // precedence rule: "the chain containing the source is given precedence over the chain containing the target."
+  // Do the final placement...
 
   // Recursively place all blocks.
   PlaceBlocks(F.begin());
