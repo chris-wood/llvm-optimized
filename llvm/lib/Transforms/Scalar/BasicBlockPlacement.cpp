@@ -181,25 +181,29 @@ bool BlockPlacement::runOnFunction(Function &F) {
       }
     }
   }
+
+  cout << "Chain creation done." << endl << "Walking arcs now." << endl;
   
   // Merge chains together using arc information
   for (vector<BBArc>::iterator arcItr = arcs.begin(); arcItr != arcs.end(); arcItr++)
   {
     BBArc arc = *arcItr;
+    cout << "Visiting arc @" << &arc << endl;
 
     // Walk each pair of head/tails and check to see if they satisfy this arc
     for (unsigned int i = 0; i < chains.size(); i++)
     {
       for (unsigned int j = 0; j < chains.size(); j++)
       {
-        if (i != j)
+        if (i != j && chains[i].size() > 0 && chains[j].size() > 0)
         {
           // if arc connects the tail of one chain to the head of another
           // append target/tail chain to source/head chain
           // vectors store BB pointers, so we can just compare addresses for equality 
           if (chains[i][0] == arc.tail && chains[j][chains[j].size() - 1] == arc.head) // chain j is the head, i is the tail
           {
-            for (int k = 0; k < chains[i].size(); k++) // append chains[i] to chains[j]
+            cout << "Appending..." << endl;
+            for (unsigned int k = 0; k < chains[i].size(); k++) // append chains[i] to chains[j]
             {
               chains[j].push_back(chains[i][0]);
               chains[i].erase(chains[i].begin());
@@ -207,7 +211,8 @@ bool BlockPlacement::runOnFunction(Function &F) {
           }
           else if (chains[i][chains[i].size() - 1] == arc.head && chains[j][0] == arc.tail) // chain j is the tail, i is the head
           {
-            for (int k = 0; k < chains[j].size(); k++) // append chains[j] to chains[i]
+            cout << "Appending..." << endl;
+            for (unsigned int k = 0; k < chains[j].size(); k++) // append chains[j] to chains[i]
             {
               chains[i].push_back(chains[j][0]);
               chains[j].erase(chains[j].begin());
@@ -216,6 +221,13 @@ bool BlockPlacement::runOnFunction(Function &F) {
         }
       }
     }
+  }
+
+  cout << "Done with chain merging." << endl;
+  cout << "Total # chains = " << chains.size() << endl;
+  for (unsigned int i = 0; i < chains.size(); i++)
+  {
+    cout << "Chain (" << i << ") size = " << chains[i].size() << endl;
   }
 
   // precedence rule: "the chain containing the source is given precedence over the chain containing the target."
