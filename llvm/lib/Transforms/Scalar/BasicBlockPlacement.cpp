@@ -240,11 +240,12 @@ bool BlockPlacement::runOnFunction(Function &F) {
   }
 
   cout << "Done with chain merging." << endl;
-  cout << "Total # chains = " << chains.size() << endl;
+  cout << "Total # chains = " << chains.size() << endl << "-----" << endl;
   for (unsigned int i = 0; i < chains.size(); i++)
   {
     cout << "Chain (" << i << ") size = " << chains[i].size() << endl;
   }
+  cout << "-----" << endl << "Doing block placement now." << endl;
 
   // precedence rule: "the chain containing the source is given precedence over the chain containing the target."
   // Start with entry chain
@@ -256,9 +257,10 @@ bool BlockPlacement::runOnFunction(Function &F) {
   {
     if (chains[i].size() > 0)
     {
-      cout << "Comparing " << chains[i][0] << " and " << curr << endl;
+      cout << "Comparing (" << i << ") " << chains[i][0] << " and " << curr << endl;
       if (chains[i][0] == curr) // append all basic blocks in this chain to the "current" block
       {
+        cout << "Found a match." << endl;
         for (int j = 0; j < chains[i].size(); j++)
         {
           chains[i][j]->moveAfter(curr);
@@ -274,7 +276,7 @@ bool BlockPlacement::runOnFunction(Function &F) {
   //PlacedBlocks.clear();
   //NumMoved += NumMovedBlocks;
 
-  cout << "Blocks placed: " << NumMoved << endl;
+  cout << "Blocks placed: " << NumMovedBlocks << endl;
 
   return NumMovedBlocks != 0;
 }
