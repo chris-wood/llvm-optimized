@@ -26,6 +26,20 @@
 //
 //===----------------------------------------------------------------------===//
 
+/*
+
+To run with the profile data in tact
+
+./clang -03 -emit-llvm mod_inverse.c -c -o mod_inverse.bc
+./opt -insert-edge-profiling mod_inverse.bc -o mod_inverse.profile.bc
+./llc mod_inverse.profile.bc -o mod_inverse.profile.s
+./clang -o mod_inverse.profile mod_inverse.profile.s ../lib/libprofile_rt.so
+./mod_inverse.profile
+./llvm-prof mod_inverse.profile.bc
+./opt -profile-loader -block-placement mod_inverse.profile.bc
+
+*/
+
 #define DEBUG_TYPE "block-placement"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/ADT/Statistic.h"
@@ -183,6 +197,7 @@ bool BlockPlacement::runOnFunction(Function &F) {
   }
 
   cout << "Chain creation done." << endl << "Walking arcs now." << endl;
+  assert(visited.size() == chains.size());
   
   // Merge chains together using arc information
   for (vector<BBArc>::iterator arcItr = arcs.begin(); arcItr != arcs.end(); arcItr++)
