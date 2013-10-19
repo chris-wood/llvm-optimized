@@ -18,7 +18,7 @@ int is_prime(unsigned int n)
 }
 
 // Find all prime numbers up to CAP
-int main(int argc, char* argv)
+int main(int argc, char** argv)
 {
 	unsigned int i;
 	for (i = 2; i < CAP; i++)
