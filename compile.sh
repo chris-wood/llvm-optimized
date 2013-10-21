@@ -1,8 +1,8 @@
 #!/bin/bash
 echo Running program: $1
-$var = $1
-$count = $2
-for $i in ${@:3}
+var=$1
+count=$2
+for i in ${@:3}
 do
 	echo ----------------------------------------
 	echo *** Size: $i
