@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <math.h>
 
-#define CAP 250000
-
 // Prime test by trial division
 int is_prime(unsigned int n)
 {
@@ -21,7 +19,10 @@ int is_prime(unsigned int n)
 int main(int argc, char** argv)
 {
 	unsigned int i;
-	for (i = 2; i < CAP; i++)
+	unsigned int cap = atoi(argv[1]);
+
+	printf("Starting search for primes up to %d\n", cap);
+	for (i = 2; i < cap; i++)
 	{
 		if (is_prime(i) == 1)
 		{
