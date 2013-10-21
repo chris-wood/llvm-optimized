@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 #define COMPLEXITY 100000
 #define LOOPS 1000

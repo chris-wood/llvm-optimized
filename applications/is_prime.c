@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 // Prime test by trial division
 int is_prime(unsigned int n)
