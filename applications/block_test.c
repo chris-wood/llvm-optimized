@@ -15,7 +15,7 @@ inline long factorial(long n)
 }
 
 // Find all prime numbers up to CAP
-int main(int argc, char* argv)
+int main(int argc, char** argv)
 {
 	unsigned int i, j;
 	for (i = 0; i < CAP; i++)
