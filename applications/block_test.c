@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <math.h>
 
-#define CAP 1000000
 #define COMPLEXITY 100000
 #define LOOPS 1000
 #define MOD 1000
 
-inline long factorial(long n)
+long factorial(long n)
 {
 	if (n == 0 || n == 1)
 		return 1;
@@ -18,7 +17,10 @@ inline long factorial(long n)
 int main(int argc, char** argv)
 {
 	unsigned int i, j;
-	for (i = 0; i < CAP; i++)
+	unsigned int cap = atoi(argv[1]);
+
+	printf("Running block_test with %d iterations, %d mod split, %d loops, and %d factorial complexity\n", cap, MOD, LOOPS, COMPLEXITY);
+	for (i = 0; i < cap; i++)
 	{
 		if ((i % MOD) == 0)
 		{
