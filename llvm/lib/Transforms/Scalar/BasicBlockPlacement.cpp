@@ -338,6 +338,8 @@ bool BlockPlacement::runOnFunction(Function &F) {
       }
 
       // Do the chain appending
+	if (newChainIndex != -1)
+{
       cout << "Appending chain " << newChainIndex << " to chain " << chainIndex << endl;
       for (int j = 0; j < chains[newChainIndex].size(); j++)
       {
@@ -347,6 +349,7 @@ bool BlockPlacement::runOnFunction(Function &F) {
       }
       chainIndex = newChainIndex;
       visitedChains.insert(newChainIndex);
+}
     }
   }
 
