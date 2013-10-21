@@ -316,9 +316,9 @@ bool BlockPlacement::runOnFunction(Function &F) {
             {
               BasicBlock* c1 = chains[chainIndex][ci1];
               BasicBlock* c2 = chains[j][ci2];
-              for (llvm::succ_const_iterator itr1 = succ_begin(c1); itr1 != succ_end(c1); itr1++)
+              for (llvm::succ_iterator itr1 = succ_begin(c1); itr1 != succ_end(c1); itr1++)
               {
-                for (llvm::succ_const_iterator itr2 = succ_begin(c2); itr2 != succ_end(c2); itr2++)
+                for (llvm::succ_iterator itr2 = succ_begin(c2); itr2 != succ_end(c2); itr2++)
                 {
                   if (*itr1 == *itr2)
                   {
