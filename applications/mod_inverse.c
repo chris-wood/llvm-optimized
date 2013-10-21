@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
  
 int mul_inv(int a, int b)
 {
@@ -14,7 +15,18 @@ int mul_inv(int a, int b)
 	return x1;
 }
  
-int main(void) {
-	printf("%d\n", mul_inv(42, 2017));
+
+// NOTE: input must be a prime...
+int main(int argc, char** argv) 
+{
+	int prime = atoi(argv[1]);
+	unsigned int e;
+	printf("Finding the inverse of all elements in GF(%d)\n", prime);
+
+	for (e = 0; e < prime; e++)
+	{
+		printf("%d^-1 mod %d = %d\n", e, prime, mul_inv(e, prime));
+	}
+
 	return 0;
 }
