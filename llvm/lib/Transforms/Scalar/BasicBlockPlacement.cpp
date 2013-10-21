@@ -286,13 +286,13 @@ bool BlockPlacement::runOnFunction(Function &F) {
       }
     }
   }
-  
+
   // start with the TAIL of the entry chain, not the head
   curr = chains[chainIndex][chains[chainIndex].size() - 1]; 
 
   // Now do the appending as outline in the algorithm in the paper
-  set<int> visited;
-  visited.insert(chainIndex);
+  set<int> visitedChains;
+  visitedChains.insert(chainIndex);
   for (int i = 0; i < chains.size(); i++)
   {
     if (chains[i].size() > 0)
@@ -302,7 +302,7 @@ bool BlockPlacement::runOnFunction(Function &F) {
       for (int j = 0; j < chains.size(); j++)
       {
         // Not the same as chain i, not an empty chain index, and not already visited
-        if (i != j && chains[j].size() > 0 && visited.find(j) == visited.end())
+        if (i != j && chains[j].size() > 0 && visitedChains.find(j) == visitedChains.end())
         {
           if (newChainIndex == -1) newChainIndex = j; // set first one by default
           int connections = 0;
@@ -346,7 +346,7 @@ bool BlockPlacement::runOnFunction(Function &F) {
         NumMovedBlocks++;
       }
       chainIndex = newChainIndex;
-      visited.insert(newChainIndex);
+      visitedChains.insert(newChainIndex);
     }
   }
 
