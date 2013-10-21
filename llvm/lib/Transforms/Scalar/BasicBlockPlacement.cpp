@@ -251,23 +251,102 @@ bool BlockPlacement::runOnFunction(Function &F) {
   // Start with entry chain
   // use functions moveBefore and moveAfter to place basicblocks in a line...
   // BasicBlock::moveAfter(BasicBlock* movePos):  Unlink this basic block from its current function and insert it right after MovePos in the function MovePos lives in. 
+  // BasicBlock& entry = F.getEntryBlock();
+  // BasicBlock* curr = &entry; // this won't work, but the idea is there
+  // for (int i = 0; i < chains.size(); i++) 
+  // {
+  //   if (chains[i].size() > 0)
+  //   {
+  //     cout << "Comparing (" << i << ") " << chains[i][0] << " and " << curr << endl;
+  //     if (chains[i][0] == curr) // append all basic blocks in this chain to the "current" block
+  //     {
+        // cout << "Found a match." << endl;
+        // for (int j = 0; j < chains[i].size(); j++)
+        // {
+        //   chains[i][j]->moveAfter(curr);
+        //   curr = chains[i][j];
+        //   NumMovedBlocks++;
+        // }
+  //     }
+  //   }
+  // }
+
+  // Find the chain starting with the entry block
   BasicBlock& entry = F.getEntryBlock();
-  BasicBlock* curr = &entry; // this won't work, but the idea is there
-  for (int i = 0; i < chains.size(); i++) 
+  BasicBlock* curr = &entry;
+  int chainIndex = -1;
+  for (int i = 0; i < chains.size() && chainIndex == -1; i++)
   {
     if (chains[i].size() > 0)
     {
-      cout << "Comparing (" << i << ") " << chains[i][0] << " and " << curr << endl;
-      if (chains[i][0] == curr) // append all basic blocks in this chain to the "current" block
+      if (chains[i][0] == curr)
       {
-        cout << "Found a match." << endl;
-        for (int j = 0; j < chains[i].size(); j++)
+        chainIndex = i;
+        break;
+      }
+    }
+  }
+  
+  // start with the TAIL of the entry chain, not the head
+  curr = chains[chainIndex][chains[chainIndex].size() - 1]; 
+
+  // Now do the appending as outline in the algorithm in the paper
+  set<int> visited;
+  visited.insert(chainIndex);
+  for (int i = 0; i < chains.size(); i++)
+  {
+    if (chains[i].size() > 0)
+    {
+      int maxConnections = 0;
+      int newChainIndex = -1;
+      for (int j = 0; j < chains.size(); j++)
+      {
+        // Not the same as chain i, not an empty chain index, and not already visited
+        if (i != j && chains[j].size() > 0 && visited.find(j) == visited.end())
         {
-          chains[i][j]->moveAfter(curr);
-          curr = chains[i][j];
-          NumMovedBlocks++;
+          if (newChainIndex == -1) newChainIndex = j; // set first one by default
+          int connections = 0;
+
+          // Compute the number of connections between the two chains chainIndex && index j
+          // For each pair of blocks in the chains, check to see if there are connections between the successors 
+          //  (this is what defines a connection between chains)
+          for (int ci1 = 0; ci1 < chains[chainIndex].size(); ci1++)
+          {
+            for (int ci2 = 0; ci2 < chains[j].size(); ci2++) 
+            {
+              BasicBlock* c1 = chains[chainIndex][ci1];
+              BasicBlock* c2 = chains[j][ci2];
+              for (llvm::succ_const_iterator itr1 = succ_begin(c1); itr1 != succ_end(c1); itr1++)
+              {
+                for (llvm::succ_const_iterator itr2 = succ_begin(c2); itr2 != succ_end(c2); itr2++)
+                {
+                  if (*itr1 == *itr2)
+                  {
+                    connections++;
+                  }
+                }
+              }
+            }
+          }
+
+          // Set the new max chain
+          if (connections > maxConnections)
+          {
+            newChainIndex = j;
+          }
         }
       }
+
+      // Do the chain appending
+      cout << "Appending chain " << newChainIndex << " to chain " << chainIndex << endl;
+      for (int j = 0; j < chains[newChainIndex].size(); j++)
+      {
+        chains[newChainIndex][j]->moveAfter(curr);
+        curr = chains[newChainIndex][j];
+        NumMovedBlocks++;
+      }
+      chainIndex = newChainIndex;
+      visited.insert(newChainIndex);
     }
   }
 
