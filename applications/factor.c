@@ -47,16 +47,16 @@ Factors *factor( int num, Factors *fctrs)
     return fctrs;
 }
  
-int main(int argc, char*argv[])
+int main(int argc, char* argv[])
 {
-    int nums2factor[] = { 2059, 223092870, 3135, 45 };
+    int factorCap = atoi(argv[1]);
+    // int nums2factor[] = { 2059, 223092870, 3135, 45 };
     Factors ftors = { NULL, 0};
     char sep;
     int i,j;
- 
-    for (i=0; i<4; i++) {
-        factor( nums2factor[i], &ftors );
-        printf("\nfactors of %d are:\n  ", nums2factor[i]);
+    for (i=2; i < factorCap; i++) {
+        factor( i, &ftors );
+        printf("\nfactors of %d are:\n  ", i);
         sep = ' ';
         for (j=0; j<ftors.count; j++) {
             printf("%c %d", sep, ftors.list[j]);
