@@ -84,10 +84,11 @@ void perm3(int *x, int n, int callback(int*, int))
 done:	free(c);
 }
  
-#define N 4
+//#define N 4
  
-int main()
+int main(int argc, char** argv)
 {
+	int N = atoi(argv[1]);
 	int i, x[N];
 	for (i = 0; i < N; i++) x[i] = i + 1;
  

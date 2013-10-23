@@ -170,10 +170,11 @@ void print_eps(point pts, int len, point cent, int n_cluster)
 #	undef for_len
 }
  
-#define PTS 100000
+//#define PTS 100000
 #define K 11
-int main()
+int main(int argc, char** argv)
 {
+	int PTS = atoi(argv[1]);
 	int i;
 	point v = gen_xy(PTS, 10);
 	point c = lloyd(v, PTS, K);
