@@ -79,13 +79,13 @@ int main(int argc, char* argv[])
       }
    }
 
-   printmat(A, n);
-   printmat(B, n);
+//   printmat(A, n);
+//   printmat(B, n);
    
    printf("Multiying...\n");
    mmult();
    printf("Result...\n");
-   printmat(C, n);
+//   printmat(C, n);
 
    return 0;
 }  

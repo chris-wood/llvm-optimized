@@ -36,11 +36,12 @@ int main(int argc, char** argv)
     {
         array[i] = rand() % MAX;
     }
-    printf("Pre-sort: ");
-    for (i = 0; i < size; i++) printf("%d ", array[i]);
-    printf("\n");
+    //printf("Pre-sort: ");
+    //for (i = 0; i < size; i++) printf("%d ", array[i]);
+    //printf("\n");
     bubbleSort(array, size);
-    printf("Post-sort: ");
-    for (i = 0; i < size; i++) printf("%d ", array[i]);
-    printf("\n");
+    //printf("Post-sort: ");
+    //for (i = 0; i < size; i++) printf("%d ", array[i]);
+    //printf("\n");
+	return 0;
 }

@@ -56,13 +56,13 @@ int main(int argc, char* argv[])
     int i,j;
     for (i=2; i < factorCap; i++) {
         factor( i, &ftors );
-        printf("\nfactors of %d are:\n  ", i);
-        sep = ' ';
-        for (j=0; j<ftors.count; j++) {
-            printf("%c %d", sep, ftors.list[j]);
-            sep = ',';
-        }
-        printf("\n");
+        //printf("\nfactors of %d are:\n  ", i);
+        //sep = ' ';
+        //for (j=0; j<ftors.count; j++) {
+        //    printf("%c %d", sep, ftors.list[j]);
+        //    sep = ',';
+        //}
+        //printf("\n");
     }
     return 0;
 }
